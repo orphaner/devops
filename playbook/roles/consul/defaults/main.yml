@@ -1,0 +1,107 @@
+---
+
+###############################################################################
+# Paramètres d'installation
+###############################################################################
+
+# Version de consul à installer
+consul_version: 0.7.2
+
+# Activation de la console Web UI
+consul_is_ui: false
+
+# Rôle de serveur
+consul_is_server: false
+
+# utilisateur et groupe système
+consul_user: "consul"
+consul_group: "consul"
+
+# Chemins d'installation
+consul_home: /opt/consul
+consul_config_dir: /etc/consul.d
+consul_config_file: /etc/consul.conf
+consul_log_file: /var/log/consul.log
+consul_data_dir: "/data/consul"
+
+# Logging
+consul_syslog: false
+consul_log_level: "INFO"
+
+# 
+consul_domain: "consul"
+
+# Evalue une commande linux à distance ; à désactiver pour raison de sécurité
+consul_disable_remote_exec: true
+
+###############################################################################
+# Paramètres de mise en réseau
+###############################################################################
+
+# Interface réseau d'écoute
+consul_iface: eth0
+
+# Bind IP des services
+consul_bind_address: "{{ ansible_default_ipv4['address'] }}"
+
+# Bind IP pour l'API Rest
+consul_client_address_bind: true
+consul_client_address: "{{ ansible_default_ipv4['address'] }}"
+
+
+###############################################################################
+# Paramètres de clustering
+###############################################################################
+
+# Groupe de l'inventaire ansible qui contient les noeuds du cluster consul
+consul_group_name: "consul-cluster"
+
+# Nom du datacenter
+consul_datacenter: "dc1"
+
+# Rejoindre 1 cluster existant au démarrage 
+# NB : consul ne démarrera pas si le cluster est non démarré
+consul_join_at_start: false
+
+# 
+consul_retry_join: false
+consul_retry_interval: 10s
+consul_retry_max: 12
+
+consul_rejoin_after_leave: true
+consul_leave_on_terminate: false
+
+# Nombre de noeuds dans le cluster
+consul_bootstrap_expect: 0
+
+
+###############################################################################
+# /!\ Paramètres non modifiables /!\
+###############################################################################
+
+# Nom du fichier de l'archive consul
+consul_archive: "consul_{{ consul_version }}_linux_amd64.zip"
+
+# Nom du fichier de l'archive consul-cli
+consul_cli_archive: "consul-cli_{{ consul_cli_version }}_linux_amd64.tar.gz"
+consul_cli_extract_dir: "consul-cli_{{ consul_cli_version }}_linux_amd64"
+
+# Chemin vers les templates
+consul_systemd_template: "consul.systemd.j2"
+consul_add_path_template: "consul.sh.j2"
+consul_config_template: "consul.json.j2"
+consul_dnsmasq_main_config_template: "dnsmasq.conf.j2"
+consul_dnsmasq_config_template: "10-consul.j2"
+
+# Gestion du service systemd
+consul_service_state: started
+consul_manage_service: true
+consul_reload_config_handler: reload consul config
+consul_restart_handler: restart consul
+
+# Désactivation du check des mises à jour
+consul_disable_update_check: true
+
+# N'utilise pas le service online "atlas"
+consul_atlas_join: false
+

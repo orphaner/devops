@@ -1,0 +1,104 @@
+- name: create consul group
+  group: >
+    name={{consul_group}}
+    state=present
+    system=yes
+  register: consul_group_created
+
+- name: create consul user
+  user: >
+    home={{consul_home}}
+    name={{consul_user}}
+    group={{consul_group}}
+    system=yes
+  when: consul_group_created|changed
+
+- name: create consul directory
+  file: >
+    state=directory
+    path={{ item }}
+    owner={{consul_user}}
+    group={{consul_group}}
+    mode=0755
+  with_items:
+    - "{{ consul_home }}"
+    - "{{ consul_home }}/bin"
+    - "{{ consul_home }}/cert"
+    - "{{ consul_data_dir }}"
+    - "{{ consul_config_dir }}"
+
+# Check before creating log dir to prevent aggressively overwriting permissions
+- name: check for consul log directory
+  stat: >
+    path={{ consul_log_file|dirname }}
+  register: logdir
+
+- name: create log directory if it does not exist
+  file: >
+    state=directory
+    path={{ consul_log_file|dirname }}
+    owner={{ consul_user }}
+    group={{ consul_group }}
+  when: not logdir.stat.exists
+
+- name: touch the log file
+  file: >
+    state=touch
+    path={{ consul_log_file }}
+    owner={{ consul_user }}
+    group={{ consul_group }}
+  changed_when: false
+
+- name: Copy Consul archive
+  copy: >
+    src=files/{{consul_archive}}
+    dest=/tmp/
+    owner={{consul_user}}
+    group={{consul_group}}
+    mode=0644
+  register: consul_was_downloaded
+
+- name: copy and unpack
+  unarchive: >
+    src=/tmp/{{ consul_archive }}
+    dest={{ consul_home }}/bin
+    copy=no
+  when: consul_was_downloaded|changed
+
+- name: set ownership
+  file: >
+    state=directory
+    path={{consul_home}}
+    owner={{consul_user}}
+    group={{consul_group}}
+    recurse=yes
+  when: consul_was_downloaded|changed
+
+- name: copy consul systemd script
+  template: >
+    src={{consul_systemd_template}}
+    dest=/etc/systemd/system/consul.service
+    owner=root
+    group=root
+    mode=0644
+  notify:
+    - reload systemd
+    - "{{ consul_restart_handler }}"
+
+- name: add consul to path through profile.d
+  template: >
+    src={{consul_add_path_template}}
+    dest=/etc/profile.d/consul.sh
+    owner=root
+    group=root
+    mode=0755
+
+- name: consul config file
+  template: >
+    src={{consul_config_template}}
+    dest={{ consul_config_file }}
+    owner={{consul_user}}
+    group={{consul_group}}
+    mode=0755
+  notify:
+    - "{{ consul_restart_handler }}"
