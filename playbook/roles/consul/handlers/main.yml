@@ -5,7 +5,7 @@
 
 - name: restart consul
   action: service name=consul state=restarted enabled=yes
-  when: consul_manage_service
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: reload consul config
   become: yes

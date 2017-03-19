@@ -2,3 +2,4 @@
 *~
 *iml
 *.idea
+playbook/consul.retry

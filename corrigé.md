@@ -1,0 +1,1 @@
+ansible -i inventories/dev all -m command -a "netstat -tunelp"

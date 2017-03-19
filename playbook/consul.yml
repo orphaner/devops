@@ -4,13 +4,18 @@
   become: yes
   become_user: root
   vars:
-    consul_is_server: true
-    consul_is_ui: true
-    consul_client_address: "0.0.0.0"
-    consul_retry_join: true
-    consul_bootstrap_expect: 3
+#    consul_is_server: true
+#    consul_is_ui: true
+#    consul_retry_join: true
+#    consul_bootstrap_expect: 3
+
+    consul_iface: eth1
+    #consul_client_address: "{{ ansible_ssh_host }}"
+    consul_bind_address: "{{ ansible_ssh_host }}"
     consul_encrypt: iuEOzrCGw0dmiis1fMChmg==
   roles:
+    - consul
+  tags:
     - consul
     - consul-cluster
 
@@ -22,7 +27,8 @@
   vars:
     consul_is_server: false
     consul_join_at_start: true
-    consul_client_address: "127.0.0.1"
+    consul_iface: eth1
+    consul_bind_address: "{{ ansible_ssh_host }}"
     consul_encrypt: iuEOzrCGw0dmiis1fMChmg==
   roles:
     - consul
