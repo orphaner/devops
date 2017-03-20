@@ -39,3 +39,16 @@ Nous allons ensuite installer 2 instances de consul en mode client :
 # Déploiement d'une application spring boot
 Nous allons maintenant déployer une application java développée en spring boot. 
 Celle-ci démarre sur le port 8080 et s'enregistre automatiquement sur le consul d'IP 127.0.0.1
+
+* Installer confd via Ansible sur les hosts Java (installation manuelle si pas assez de temps)
+  --> Créer un rôle d'installation
+* Variabiliser les fichiers de conf application.yml et bootstrap.yml via confd avec un backend consul et environnement en fonction des informations à récupérer.
+  * application.yml (depuis consul)
+    * définir le port d'écoute
+    * modifier le niveau de log
+  * boostrap.yml (depuis les variables d'environnement)
+    * url d'écoute de consul
+    * port d'écoute de l'agent consul
+
+NB : Les valeurs dans consul peuvent être saisies via l'UI ou depuis la ligne de commande.
+
